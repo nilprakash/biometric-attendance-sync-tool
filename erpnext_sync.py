@@ -1,4 +1,15 @@
+import os
+import sys
 
+# Safe guard pathing for compiled binaries
+if getattr(sys, 'frozen', False):
+    exe_dir = os.path.dirname(sys.executable)
+    if exe_dir not in sys.path:
+        sys.path.insert(0, exe_dir)
+    os.chdir(exe_dir)
+
+# Now the original imports can run safely
+import logging
 import local_config as config
 import requests
 import datetime
@@ -6,7 +17,6 @@ import json
 import os
 import sys
 import time
-import logging
 from logging.handlers import RotatingFileHandler
 from pickledb import PickleDB
 from zk import ZK, const

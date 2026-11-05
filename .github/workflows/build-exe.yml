@@ -1,0 +1,38 @@
+name: Compile Windows Service Executable
+
+on:
+  workflow_dispatch: # Allows you to manually click a button to build the exe anytime
+
+jobs:
+  build:
+    runs-on: windows-latest # Tells GitHub to give you a cloud Windows environment
+
+    steps:
+    # 1. Pull down the repository code
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    # 2. Set up Python on the cloud machine
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    # 3. Install the project's dependencies + PyInstaller
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pywin32 pyinstaller
+
+    # 4. Compile erpnext_sync_win.py into a single .exe
+    - name: Compile with PyInstaller
+      run: |
+        pyinstaller --onefile --hidden-import=win32timezone erpnext_sync_win.py
+
+    # 5. Save the compiled exe as a downloadable zip file on GitHub
+    - name: Upload Executable Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: biometric-sync-windows-service
+        path: dist/erpnext_sync_win.exe

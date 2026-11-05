@@ -1,11 +1,13 @@
 import os
 import sys
 
-# Force the executable to look into its own directory for imports and configs
+# Hard-lock environment context to the folder containing the executable
 if getattr(sys, 'frozen', False):
     exe_dir = os.path.dirname(sys.executable)
     sys.path.insert(0, exe_dir)
     os.chdir(exe_dir)
+    # Force python to see this folder for module searching
+    os.environ["PYTHONPATH"] = exe_dir
 
 import time
 from pathlib import Path

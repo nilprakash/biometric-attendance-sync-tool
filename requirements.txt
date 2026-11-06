@@ -1,3 +1,14 @@
+# uv venv
+# Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
+# .venv\Scripts\activate
+
+# 1. Ctrl + Shift + P to open the Command Palette.
+# 2. Search for and select Python: Select Interpreter.
+# 3. Choose the path that points to .\.venv\Scripts\python.exe
+
+# uv pip install -r requirements.txt
+# code .
+
 requests
 pickledb
 pyzk

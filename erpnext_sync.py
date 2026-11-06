@@ -1,12 +1,50 @@
+import logging
+import sys
+import os
 
-import local_config as config
+# 1. Detect how the program is running
+IS_PYINSTALLER = getattr(sys, 'frozen', False)
+IS_NUITKA = '__compiled__' in globals()
+
+# Force the environment context to look inside the executable's folder
+if IS_PYINSTALLER or IS_NUITKA:
+    # Get the directory containing the actual .exe file
+    exe_dir = os.path.dirname(sys.executable)
+    
+    # Force context inside the executable's folder
+    sys.path.insert(0, exe_dir)
+    os.chdir(exe_dir)
+else:
+    # Standard dev script execution (VS Code / uv venv)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    os.chdir(script_dir)
+
+# 2. Configure logging to write to startup.log inside the app folder
+log_file_path = "startup.log"
+
+logging.basicConfig(
+    filename=log_file_path,
+    filemode='a',  # 'a' appends to logs, change to 'w' if you want a fresh log file on every launch
+    level=logging.ERROR, 
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+
+try:
+    import local_config as config # type: ignore
+except ModuleNotFoundError:
+    logging.error("Critical: 'local_config.py' file is completely missing! Please create it from the template.")
+    sys.exit(1)
+except SyntaxError as e:
+    logging.error(f"Critical: Syntax error inside 'local_config.py' on line {e.lineno}! Detailed error: {e.msg}")
+    sys.exit(1)
+except Exception as e:
+    logging.error(f"Critical: Failed to load 'local_config.py' due to a runtime error: {e}")
+    sys.exit(1)
+
 import requests
 import datetime
 import json
-import os
-import sys
 import time
-import logging
 from logging.handlers import RotatingFileHandler
 from pickledb import PickleDB
 from zk import ZK, const
